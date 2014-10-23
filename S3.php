@@ -21,11 +21,11 @@ class S3 {
         }
 
         $headers->withContentLength(strlen($file))
-                ->withContentMD5(md5($file))
+                ->withContentMD5(base64_encode(md5($file, true)))
                 ->withHost($this->endpoint)
                 ->withDate(gmdate('D, d M Y H:i:s T'));
 
-        $uri = "$bucket/$uri";
+        $uri = "/$bucket/$uri";
         $response = S3Request::put($this->endpoint, $uri, $file)
             ->withS3Headers($headers)
             ->sign($this->access_key, $this->secret_key)
@@ -157,10 +157,14 @@ class S3Request {
             $this->s3_action,
             $this->s3_headers->headers['Content-MD5'],
             $this->s3_headers->headers['Content-Type'],
-            $this->s3_headers->headers['Date'],
-            implode($canonical_amz_headers, "\n"),
-            $this->uri
+            $this->s3_headers->headers['Date']
         ), "\n");
+
+        if (!empty($canonical_amz_headers)) {
+            $string_to_sign .= "\n" . implode($canonical_amz_headers, "\n");
+        }
+
+        $string_to_sign .= "\n{$this->uri}";
 
         $signature = base64_encode(
             hash_hmac('sha1', $string_to_sign, $secret_key, true));
@@ -175,7 +179,7 @@ class S3Request {
         $curl_headers = $this->s3_headers->getCurlHeaders();
 
         curl_setopt($ch, CURLOPT_USERAGENT, 'ericnorris/amazon-s3-php');
-        curl_setopt($ch, CURLOPT_URL, "https://{$this->endpoint}/{$this->uri}");
+        curl_setopt($ch, CURLOPT_URL, "https://{$this->endpoint}{$this->uri}");
         curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
@@ -258,7 +262,7 @@ class S3Response {
 
         if (count($header) == 2) {
             list($key, $value) = $header;
-            $this->headers[$key] = $value;
+            $this->headers[$key] = trim($value);
         }
 
         return strlen($data);
