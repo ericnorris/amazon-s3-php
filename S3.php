@@ -17,9 +17,9 @@ class S3 {
     }
 
     public function putObject($bucket, $path, $file, $headers) {
-        $uri = "$bucket/$uri";
+        $uri = "$bucket/$path";
 
-        $request = new S3Request('PUT', $this->endpoint, $uri)
+        $request = (new S3Request('PUT', $this->endpoint, $uri))
             ->setFileContents($file)
             ->setHeaders($headers)
             ->sign($this->access_key, $this->secret_key);
@@ -45,7 +45,7 @@ class S3Request {
             'Content-MD5' => '',
             'Content-Type' => '',
             'Date' => gmdate('D, d M Y H:i:s T'),
-            'Host' => $this->endpoint;
+            'Host' => $this->endpoint
         );
 
         $this->curl = curl_init();
@@ -70,9 +70,9 @@ class S3Request {
 
         $string_to_sign = '';
         $string_to_sign .= "{$this->action}\n";
-        $string_to_sign .= "{$this->headers->headers['Content-MD5']}\n";
-        $string_to_sign .= "{$this->headers->headers['Content-Type']}\n";
-        $string_to_sign .= "{$this->headers->headers['Date']}\n";
+        $string_to_sign .= "{$this->headers['Content-MD5']}\n";
+        $string_to_sign .= "{$this->headers['Content-Type']}\n";
+        $string_to_sign .= "{$this->headers['Date']}\n";
 
         if (!empty($canonical_amz_headers)) {
             $string_to_sign .= implode($canonical_amz_headers, "\n") . "\n";
@@ -116,15 +116,15 @@ class S3Request {
 
         $success = curl_exec($this->curl);
 
-        if ($success) {
+        if (!$success) {
             $this->response->error = array(
-                'code' => curl_errno($ch),
-                'message' => curl_error($ch),
+                'code' => curl_errno($this->curl),
+                'message' => curl_error($this->curl),
                 'resource' => $this->uri
             );
         } else {
-            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            $code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+            $content_type = curl_getinfo($this->curl, CURLINFO_CONTENT_TYPE);
 
             if ($code > 300 && $content_type == 'application/xml') {
                 $response = simplexml_load_string($this->body);
@@ -149,7 +149,7 @@ class S3Request {
         return $this->response;
     }
 
-    private getCanonicalAmzHeaders() {
+    private function getCanonicalAmzHeaders() {
         $canonical_amz_headers = array();
 
         foreach ($this->headers as $header => $value) {
@@ -169,8 +169,6 @@ class S3Request {
 }
 
 class S3Response {
-
-    public $uri;
 
     public $error;
     public $headers;
