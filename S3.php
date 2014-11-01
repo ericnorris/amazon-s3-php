@@ -50,6 +50,16 @@ class S3 {
 
         return $request->getResponse();
     }
+
+    public function deleteObject($bucket, $path, $headers = array()) {
+        $uri = "$bucket/$path";
+
+        $request = (new S3Request('DELETE', $this->endpoint, $uri))
+            ->setHeaders($headers)
+            ->sign($this->access_key, $this->secret_key);
+
+        return $request->getResponse();
+    }
 }
 
 class S3Request {
