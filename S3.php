@@ -16,11 +16,21 @@ class S3 {
         $this->endpoint = $endpoint ?: self::DEFAULT_ENDPOINT;
     }
 
-    public function putObject($bucket, $path, $file, $headers) {
+    public function putObject($bucket, $path, $file, $headers = array()) {
         $uri = "$bucket/$path";
 
         $request = (new S3Request('PUT', $this->endpoint, $uri))
             ->setFileContents($file)
+            ->setHeaders($headers)
+            ->sign($this->access_key, $this->secret_key);
+
+        return $request->getResponse();
+    }
+
+    public function getObjectInfo($bucket, $path, $headers = array()) {
+        $uri = "$bucket/$path";
+
+        $request = (new S3Request('HEAD', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->sign($this->access_key, $this->secret_key);
 
