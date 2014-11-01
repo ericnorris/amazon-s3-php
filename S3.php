@@ -36,6 +36,20 @@ class S3 {
 
         return $request->getResponse();
     }
+
+    public function getObject($bucket, $path, $resource = null, $headers = array()) {
+        $uri = "$bucket/$path";
+
+        $request = (new S3Request('GET', $this->endpoint, $uri))
+            ->setHeaders($headers)
+            ->sign($this->access_key, $this->secret_key);
+
+        if (is_resource($resource)) {
+            $request->saveToResource($resource);
+        }
+
+        return $request->getResponse();
+    }
 }
 
 class S3Request {
@@ -43,8 +57,9 @@ class S3Request {
     private $action;
     private $endpoint;
     private $uri;
-    private $curl;
     private $headers;
+    private $curl;
+    private $response;
 
     public function __construct($action, $endpoint, $uri) {
         $this->action = $action;
@@ -60,6 +75,10 @@ class S3Request {
 
         $this->curl = curl_init();
         $this->response = new S3Response();
+    }
+
+    public function saveToResource($resource) {
+        $this->response->saveToResource($resource);
     }
 
     public function setFileContents($file) {
@@ -125,34 +144,7 @@ class S3Request {
         ));
 
         $success = curl_exec($this->curl);
-
-        if (!$success) {
-            $this->response->error = array(
-                'code' => curl_errno($this->curl),
-                'message' => curl_error($this->curl),
-                'resource' => $this->uri
-            );
-        } else {
-            $code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
-            $content_type = curl_getinfo($this->curl, CURLINFO_CONTENT_TYPE);
-
-            if ($code > 300 && $content_type == 'application/xml') {
-                $response = simplexml_load_string($this->body);
-
-                if ($response) {
-                    $error = array(
-                        'code' => (string)$response->Code,
-                        'message' => (string)$response->Message,
-                    );
-
-                    if (isset($response->Resource)) {
-                        $error['resource'] = $response->Resource;
-                    }
-
-                    $this->response->error = $error;
-                }
-            }
-        }
+        $this->response->finalize($this->curl);
 
         curl_close($this->curl);
 
@@ -190,9 +182,17 @@ class S3Response {
         $this->body = null;
     }
 
+    public function saveToResource($resource) {
+        $this->body = $resource;
+    }
+
     public function __curlWriteFunction($ch, $data) {
-        $this->body .= $data;
-        return strlen($data);
+        if (is_resource($this->body)) {
+            return fwrite($this->body, $data);
+        } else {
+            $this->body .= $data;
+            return strlen($data);
+        }
     }
 
     public function __curlHeaderFunction($ch, $data) {
@@ -206,4 +206,44 @@ class S3Response {
         return strlen($data);
     }
 
+    public function finalize($ch) {
+        if (is_resource($this->body)) {
+            rewind($this->body);
+        }
+
+        if (curl_errno($ch)) {
+            $this->response->error = array(
+                'code' => curl_errno($ch),
+                'message' => curl_error($ch),
+            );
+        } else {
+            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+            if ($code > 300 && $content_type == 'application/xml') {
+                if (is_resource($this->body)) {
+                    $response = simplexml_load_string(
+                        stream_get_contents($this->body)
+                    );
+
+                    rewind($this->body);
+                } else {
+                    $response = simplexml_load_string($this->body);
+                }
+
+                if ($response) {
+                    $error = array(
+                        'code' => (string)$response->Code,
+                        'message' => (string)$response->Message,
+                    );
+
+                    if (isset($response->Resource)) {
+                        $error['resource'] = (string)$response->Resource;
+                    }
+
+                    $this->response->error = $error;
+                }
+            }
+        }
+    }
 }
