@@ -9,11 +9,14 @@ class S3 {
 
     private $endpoint;
 
-    public function __construct($access_key, $secret_key, $endpoint = null) {
+    private $multi_curl;
 
+    public function __construct($access_key, $secret_key, $endpoint = null) {
         $this->access_key = $access_key;
         $this->secret_key = $secret_key;
         $this->endpoint = $endpoint ?: self::DEFAULT_ENDPOINT;
+
+        $this->multi_curl = curl_multi_init();
     }
 
     public function putObject($bucket, $path, $file, $headers = array()) {
@@ -32,6 +35,7 @@ class S3 {
 
         $request = (new S3Request('HEAD', $this->endpoint, $uri))
             ->setHeaders($headers)
+            ->useMultiCurl($this->multi_curl)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
@@ -71,6 +75,8 @@ class S3Request {
     private $curl;
     private $response;
 
+    private $multi_curl;
+
     public function __construct($action, $endpoint, $uri) {
         $this->action = $action;
         $this->endpoint = $endpoint;
@@ -85,6 +91,8 @@ class S3Request {
 
         $this->curl = curl_init();
         $this->response = new S3Response();
+
+        $this->multi_curl = null;
     }
 
     public function saveToResource($resource) {
@@ -128,6 +136,11 @@ class S3Request {
         return $this;
     }
 
+    public function useMultiCurl($mh) {
+        $this->multi_curl = $mh;
+        return $this;
+    }
+
     public function getResponse() {
         $http_headers = array_map(
             function($header, $value) {
@@ -161,7 +174,20 @@ class S3Request {
                 break;
         }
 
-        $success = curl_exec($this->curl);
+        if (isset($this->multi_curl)) {
+            curl_multi_add_handle($this->multi_curl, $this->curl);
+
+            $running = null;
+            do {
+                curl_multi_exec($this->multi_curl, $running);
+                curl_multi_select($this->multi_curl);
+            } while ($running > 0);
+
+            curl_multi_remove_handle($this->multi_curl, $this->curl);
+        } else {
+            $success = curl_exec($this->curl);
+        }
+
         $this->response->finalize($this->curl);
 
         curl_close($this->curl);
