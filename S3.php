@@ -139,7 +139,6 @@ class S3Request {
 
         curl_setopt_array($this->curl, array(
             CURLOPT_USERAGENT => 'ericnorris/amazon-s3-php',
-            CURLOPT_CUSTOMREQUEST => $this->action,
             CURLOPT_URL => "https://{$this->endpoint}/{$this->uri}",
             CURLOPT_HTTPHEADER => $http_headers,
             CURLOPT_HEADER => false,
@@ -152,6 +151,15 @@ class S3Request {
                 $this->response, '__curlHeaderFunction'
             )
         ));
+
+        switch ($this->action) {
+            case 'PUT':
+                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+                break;
+            case 'HEAD':
+                curl_setopt($this->curl, CURLOPT_NOBODY, true);
+                break;
+        }
 
         $success = curl_exec($this->curl);
         $this->response->finalize($this->curl);
@@ -222,7 +230,7 @@ class S3Response {
         }
 
         if (curl_errno($ch)) {
-            $this->response->error = array(
+            $this->error = array(
                 'code' => curl_errno($ch),
                 'message' => curl_error($ch),
             );
@@ -251,7 +259,7 @@ class S3Response {
                         $error['resource'] = (string)$response->Resource;
                     }
 
-                    $this->response->error = $error;
+                    $this->error = $error;
                 }
             }
         }
