@@ -259,11 +259,13 @@ class S3Request {
 class S3Response {
 
     public $error;
+    public $code;
     public $headers;
     public $body;
 
     public function __construct() {
         $this->error = null;
+        $this->code = null;
         $this->headers = array();
         $this->body = null;
     }
@@ -303,10 +305,10 @@ class S3Response {
                 'message' => curl_error($ch),
             );
         } else {
-            $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $this->code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 
-            if ($code > 300 && $content_type == 'application/xml') {
+            if ($this->code > 300 && $content_type == 'application/xml') {
                 if (is_resource($this->body)) {
                     $response = simplexml_load_string(
                         stream_get_contents($this->body)
