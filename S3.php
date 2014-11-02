@@ -126,9 +126,22 @@ class S3Request {
     }
 
     public function setFileContents($file) {
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, $file);
+        if (is_resource($file)) {
+            $hash_ctx = hash_init('md5');
+            $length = hash_update_stream($hash_ctx, $file);
+            $md5 = hash_final($hash_ctx, true);
 
-        $this->headers['Content-MD5'] = base64_encode(md5($file, true));
+            rewind($file);
+
+            curl_setopt($this->curl, CURLOPT_PUT, true);
+            curl_setopt($this->curl, CURLOPT_INFILE, $file);
+            curl_setopt($this->curl, CURLOPT_INFILESIZE, $length);
+        } else {
+            curl_setopt($this->curl, CURLOPT_POSTFIELDS, $file);
+            $md5 = md5($file, true);
+        }
+
+        $this->headers['Content-MD5'] = base64_encode($md5);
 
         return $this;
     }
