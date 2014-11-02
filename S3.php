@@ -173,11 +173,14 @@ class S3Request {
         ));
 
         switch ($this->action) {
-            case 'PUT':
-                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'PUT');
+            case 'DELETE':
+                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
                 break;
             case 'HEAD':
                 curl_setopt($this->curl, CURLOPT_NOBODY, true);
+                break;
+            case 'PUT':
+                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'PUT');
                 break;
         }
 
