@@ -19,12 +19,17 @@ class S3 {
         $this->multi_curl = curl_multi_init();
     }
 
+    public function __destruct() {
+        curl_multi_close($this->multi_curl);
+    }
+
     public function putObject($bucket, $path, $file, $headers = array()) {
         $uri = "$bucket/$path";
 
         $request = (new S3Request('PUT', $this->endpoint, $uri))
             ->setFileContents($file)
             ->setHeaders($headers)
+            ->useMultiCurl($this->multi_curl)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
@@ -46,6 +51,7 @@ class S3 {
 
         $request = (new S3Request('GET', $this->endpoint, $uri))
             ->setHeaders($headers)
+            ->useMultiCurl($this->multi_curl)
             ->sign($this->access_key, $this->secret_key);
 
         if (is_resource($resource)) {
@@ -60,6 +66,7 @@ class S3 {
 
         $request = (new S3Request('DELETE', $this->endpoint, $uri))
             ->setHeaders($headers)
+            ->useMultiCurl($this->multi_curl)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
