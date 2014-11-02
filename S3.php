@@ -71,6 +71,25 @@ class S3 {
 
         return $request->getResponse();
     }
+
+    public function getBucket($bucket, $headers = array()) {
+        $request = (new S3Request('GET', $this->endpoint, $bucket))
+            ->setHeaders($headers)
+            ->useMultiCurl($this->multi_curl)
+            ->sign($this->access_key, $this->secret_key);
+
+        $response = $request->getResponse();
+
+        if (!isset($response->error)) {
+            $body = simplexml_load_string($response->body);
+
+            if ($body) {
+                $response->body = $body;
+            }
+        }
+
+        return $response;
+    }
 }
 
 class S3Request {
