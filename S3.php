@@ -11,16 +11,25 @@ class S3 {
 
     private $multi_curl;
 
+    private $curl_opts;
+
     public function __construct($access_key, $secret_key, $endpoint = null) {
         $this->access_key = $access_key;
         $this->secret_key = $secret_key;
         $this->endpoint = $endpoint ?: self::DEFAULT_ENDPOINT;
 
         $this->multi_curl = curl_multi_init();
+
+        $this->curl_opts = array();
     }
 
     public function __destruct() {
         curl_multi_close($this->multi_curl);
+    }
+
+    public function useCurlOpts($curl_opts) {
+        $this->curl_opts = $curl_opts;
+        return $this;
     }
 
     public function putObject($bucket, $path, $file, $headers = array()) {
@@ -30,6 +39,7 @@ class S3 {
             ->setFileContents($file)
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
+            ->useCurlOpts($this->curl_opts)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
@@ -41,6 +51,7 @@ class S3 {
         $request = (new S3Request('HEAD', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
+            ->useCurlOpts($this->curl_opts)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
@@ -52,6 +63,7 @@ class S3 {
         $request = (new S3Request('GET', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
+            ->useCurlOpts($this->curl_opts)
             ->sign($this->access_key, $this->secret_key);
 
         if (is_resource($resource)) {
@@ -67,6 +79,7 @@ class S3 {
         $request = (new S3Request('DELETE', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
+            ->useCurlOpts($this->curl_opts)
             ->sign($this->access_key, $this->secret_key);
 
         return $request->getResponse();
@@ -76,6 +89,7 @@ class S3 {
         $request = (new S3Request('GET', $this->endpoint, $bucket))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
+            ->useCurlOpts($this->curl_opts)
             ->sign($this->access_key, $this->secret_key);
 
         $response = $request->getResponse();
@@ -177,6 +191,12 @@ class S3Request {
 
     public function useMultiCurl($mh) {
         $this->multi_curl = $mh;
+        return $this;
+    }
+
+    public function useCurlOpts($curl_opts) {
+        curl_setopt_array($this->curl, $curl_opts);
+
         return $this;
     }
 
@@ -299,7 +319,7 @@ class S3Response {
             rewind($this->body);
         }
 
-        if (curl_errno($ch)) {
+        if (curl_errno($ch) || curl_error($ch)) {
             $this->error = array(
                 'code' => curl_errno($ch),
                 'message' => curl_error($ch),
