@@ -61,7 +61,8 @@ class S3 {
         return $request->getResponse();
     }
 
-    public function getObject($bucket, $path, $resource = null, $headers = array()) {
+    public function getObject($bucket, $path, $resource = null,
+                              $headers = array()) {
         $uri = "$bucket/$path";
 
         $request = (new S3Request('GET', $this->endpoint, $uri))
@@ -108,6 +109,7 @@ class S3 {
 
         return $response;
     }
+
 }
 
 class S3Request {
@@ -234,6 +236,9 @@ class S3Request {
                 break;
             case 'HEAD':
                 curl_setopt($this->curl, CURLOPT_NOBODY, true);
+                break;
+            case 'POST':
+                curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'POST');
                 break;
             case 'PUT':
                 curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'PUT');
