@@ -20,7 +20,11 @@ class S3 {
 
         $this->multi_curl = curl_multi_init();
 
-        $this->curl_opts = array();
+        $this->curl_opts = array(
+            CURLOPT_CONNECTTIMEOUT => 30,
+            CURLOPT_LOW_SPEED_LIMIT => 1,
+            CURLOPT_LOW_SPEED_TIME => 30
+        );
     }
 
     public function __destruct() {
