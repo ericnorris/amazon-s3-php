@@ -48,21 +48,21 @@ $error = array(
 
 ## Methods
 `putObject($bucket, $path, $file [, $headers = array()])`
-
-Uploads a file to the specified path and bucket. `$file` can either be the raw representation of a file (e.g. the result of `file_get_contents()`) or a valid stream resource. [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html)
+* Uploads a file to the specified path and bucket. `$file` can either be the raw representation of a file (e.g. the result of `file_get_contents()`) or a valid stream resource.
+* [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html)
 
 `getObjectInfo($bucket, $path, [, $headers = array()])`
-
-Retrieves metadata for the object. [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html)
+* Retrieves metadata for the object.
+* [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html)
 
 `getObject($bucket, $path [, $resource = null  [, $headers = array()]])`
-
-Retrieves the contents of an object. If `$resource` is a valid stream resource, the contents will be written there. Otherwise they will be in the body of the returned response. [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html)
+* Retrieves the contents of an object. If `$resource` is a valid stream resource, the contents will be written there. Otherwise they will be in the body of the returned response.
+* [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html)
 
 `deleteObject($bucket, $path [, $headers = array()])`
-
-Deletes an object from S3. [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html)
+* Deletes an object from S3.
+* [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html)
 
 `getBucket($bucket [, $headers = array()])`
-
-Returns a parsed response from S3 listing the contents of the specified bucket. [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGET.html)
+* Returns a parsed response from S3 listing the contents of the specified bucket.
+* [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGET.html)
