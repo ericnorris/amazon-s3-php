@@ -4,14 +4,14 @@ amazon-s3-php
 Inspired by [tpyo/amazon-s3-php-class](https://github.com/tpyo/amazon-s3-php-class), this is a simple and configurable S3 PHP library. Including this S3.php file is enough to be able to upload, delete, and retrieve objects from an Amazon S3 store.
 
 ## Usage
-`$client = new S3(ACCESS_KEY, SECRET_KEY, [optional S3 endpoint]);`
+`$client = new S3(ACCESS_KEY, SECRET_KEY [, optional S3 endpoint]);`
 
 ## Configuration
 ### `useCurlOpts($curl_opts_array)`
 Provide the S3 class with any curl options to use in making requests.
 
 The following options are passed by default in order to prevent 'hung' requests:
-```
+```php
 curl_opts = array(
     CURLOPT_CONNECTTIMEOUT => 30,
     CURLOPT_LOW_SPEED_LIMIT => 1,
@@ -27,7 +27,7 @@ Request headers that are common to all requests are located [here](http://docs.a
 
 ## S3Response Class
 All methods in the S3 class will return an instance of the S3Response class.
-```
+```php
 class S3Response {
     public $error;    // null if no error
     public $code;     // response code from AWS
@@ -66,3 +66,47 @@ $error = array(
 `getBucket($bucket [, $headers = array()])`
 * Returns a parsed response from S3 listing the contents of the specified bucket.
 * [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGET.html)
+
+## Examples
+Instantiating the S3 class:
+```php
+$client = new S3(ACCESS_KEY, SECRET_KEY);
+
+// [OPTIONAL] Specify different curl options
+$client->useCurlOpts(array(
+    CURLOPT_MAX_RECV_SPEED_LARGE => 1048576,
+    CURLOPT_CONNECTTIMEOUT => 10
+));
+```
+
+### Upload a file
+```
+$response = $client->putObject(
+    'bucket',
+    'hello_world.txt',
+    'hello world!',
+    array(
+        'Content-Type' => 'text/plain'
+    )
+);
+
+print_r($response);
+```
+
+Output:
+```
+S3Response Object
+(
+    [error] => null
+    [code] => 200
+    [headers] => Array
+        (
+            [x-amz-id-2] => ...
+            [x-amz-request-id] => ...
+            [ETag] => "..."
+            [Content-Length] => ...
+            [Server] => ...
+        )
+    [body] => null
+)
+```
