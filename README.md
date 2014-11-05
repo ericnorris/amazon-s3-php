@@ -1,14 +1,18 @@
 amazon-s3-php
 =============
 
-Inspired by [tpyo/amazon-s3-php-class](https://github.com/tpyo/amazon-s3-php-class), this is a simple and configurable S3 PHP library. Including this S3.php file is enough to be able to upload, delete, and retrieve objects from an Amazon S3 store.
+Inspired by [tpyo/amazon-s3-php-class](https://github.com/tpyo/amazon-s3-php-class), this is a simple and configurable S3 PHP library. It was written to be as lightweight as possible, while still enabling access to all of the features of AWS (e.g. server-side encryption).
+
+Additionally, `curl_multi_exec` is used (rather than `curl_exec`) for better performance when doing bulk operations.
 
 ## Usage
-`$client = new S3(ACCESS_KEY, SECRET_KEY [, optional S3 endpoint]);`
+`$client = new S3($access_key, $secret_key [, $endpoint = null]);`
 
 ## Configuration
-### `useCurlOpts($curl_opts_array)`
-Provide the S3 class with any curl options to use in making requests.
+### Specify Custom Curl Options
+* `$client->useCurlOpts($curl_opts_array)`
+
+Provides the S3 class with any curl options to use in making requests.
 
 The following options are passed by default in order to prevent 'hung' requests:
 ```php
@@ -20,7 +24,7 @@ curl_opts = array(
 ```
 **Note:** *If you call this method, these defaults will not be used.*
 
-### `$headers`
+### Send Additional AWS Headers
 All of the available S3 operations take an optional `$headers` array that will be passed along to S3. These can include `x-amz-meta-`, `x-amz-server-side-encryption`, `Content-Type`, etc. Any Amazon headers specified will be properly included in the AWS signature as per [AWS Signature v2](http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html).
 
 Request headers that are common to all requests are located [here](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTCommonRequestHeaders.html).
@@ -56,7 +60,7 @@ $error = array(
 * [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html)
 
 `getObject($bucket, $path [, $resource = null  [, $headers = array()]])`
-* Retrieves the contents of an object. If `$resource` is a valid stream resource, the contents will be written there. Otherwise they will be in the body of the returned response.
+* Retrieves the contents of an object. If `$resource` is a valid stream resource, the contents will be written to the stream. Otherwise `$response->body` will contain the contents of the file.
 * [AWS Documentation](http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html)
 
 `deleteObject($bucket, $path [, $headers = array()])`
@@ -79,7 +83,7 @@ $client->useCurlOpts(array(
 ));
 ```
 
-### Upload a file
+### Upload an object
 ```
 $response = $client->putObject(
     'bucket',
@@ -109,4 +113,34 @@ S3Response Object
         )
     [body] => null
 )
+```
+### Download an object
+```php
+$resource = tmpfile();
+$client->getObject('bucket', 'hello_world.txt', $resource);
+
+print_r($response);
+echo stream_get_contents($resource) . "\n";
+```
+Output:
+```
+S3Response Object
+(
+    [error] =>
+    [code] => 200
+    [headers] => Array
+        (
+            [x-amz-id-2] => ...
+            [x-amz-request-id] => ...
+            [ETag] => "..."
+            [Accept-Ranges] => bytes
+            [Content-Type] => text/plain
+            [Content-Length] => 12
+            [Server] => ...
+        )
+
+    [body] => Resource id #17
+)
+
+hello world!
 ```
