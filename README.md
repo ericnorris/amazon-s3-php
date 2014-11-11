@@ -42,11 +42,11 @@ class S3Response {
 
 If there is an error in curl or an error is returned from AWS, `$response->error` will be non-null and set to the following array:
 
-```
+```php
 $error = array(
     'code' => xxx, // error code from either curl or AWS
     'message' => xxx, // error string from either curl or AWS
-    'resource' => [optional] // the S3 resource frmo the request
+    'resource' => [optional] // the S3 resource from the request
 )
 ```
 
@@ -84,7 +84,7 @@ $client->useCurlOpts(array(
 ```
 
 ### Upload an object
-```
+```php
 $response = $client->putObject(
     'bucket',
     'hello_world.txt',
@@ -98,7 +98,7 @@ print_r($response);
 ```
 
 Output:
-```
+```php
 S3Response Object
 (
     [error] => null
@@ -123,7 +123,7 @@ print_r($response);
 echo stream_get_contents($resource) . "\n";
 ```
 Output:
-```
+```php
 S3Response Object
 (
     [error] =>
