@@ -1,19 +1,21 @@
 {
     "name": "ericnorris/amazon-s3-php",
     "description": "A lightweight and fast S3 client for PHP.",
-    "keywords": ["amazon", "aws", "s3"],
+    "keywords": ["amazon", "aws", "s3", "php"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Eric Norris",
-            "email": "erictnorris@gmail.com"
+            "name": "Eric Norris"
         }
     ],
     "support": {
-	"source": "https://github.com/ericnorris/amazon-s3-php",
-	"issues": "https://github.com/ericnorris/amazon-s3-php/issues"
+        "source": "https://github.com/ericnorris/amazon-s3-php",
+        "issues": "https://github.com/ericnorris/amazon-s3-php/issues"
     },
     "autoload": {
-	"files": ["src/S3.php"]
+       "files": ["src/S3.php"]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.4.*"
     }
 }
