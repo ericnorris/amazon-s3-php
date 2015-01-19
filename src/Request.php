@@ -2,7 +2,7 @@
 
 namespace S3;
 
-class \S3Request {
+class Request {
 
     private $action;
     private $endpoint;
@@ -26,7 +26,7 @@ class \S3Request {
         );
 
         $this->curl = curl_init();
-        $this->response = new S3Response();
+        $this->response = new \S3\Response();
 
         $this->multi_curl = null;
     }

@@ -41,7 +41,7 @@ class Client {
     public function putObject($bucket, $path, $file, $headers = array()) {
         $uri = "$bucket/$path";
 
-        $request = (new S3Request('PUT', $this->endpoint, $uri))
+        $request = (new \S3\Request('PUT', $this->endpoint, $uri))
             ->setFileContents($file)
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
@@ -54,7 +54,7 @@ class Client {
     public function getObjectInfo($bucket, $path, $headers = array()) {
         $uri = "$bucket/$path";
 
-        $request = (new S3Request('HEAD', $this->endpoint, $uri))
+        $request = (new \S3\Request('HEAD', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
             ->useCurlOpts($this->curl_opts)
@@ -67,7 +67,7 @@ class Client {
                               $headers = array()) {
         $uri = "$bucket/$path";
 
-        $request = (new S3Request('GET', $this->endpoint, $uri))
+        $request = (new \S3\Request('GET', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
             ->useCurlOpts($this->curl_opts)
@@ -83,7 +83,7 @@ class Client {
     public function deleteObject($bucket, $path, $headers = array()) {
         $uri = "$bucket/$path";
 
-        $request = (new S3Request('DELETE', $this->endpoint, $uri))
+        $request = (new \S3\Request('DELETE', $this->endpoint, $uri))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
             ->useCurlOpts($this->curl_opts)
@@ -93,7 +93,7 @@ class Client {
     }
 
     public function getBucket($bucket, $headers = array()) {
-        $request = (new S3Request('GET', $this->endpoint, $bucket))
+        $request = (new \S3\Request('GET', $this->endpoint, $bucket))
             ->setHeaders($headers)
             ->useMultiCurl($this->multi_curl)
             ->useCurlOpts($this->curl_opts)
