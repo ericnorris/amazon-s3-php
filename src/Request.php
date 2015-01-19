@@ -1,6 +1,8 @@
 <?php
 
-class S3Request {
+namespace S3;
+
+class \S3Request {
 
     private $action;
     private $endpoint;

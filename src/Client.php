@@ -1,6 +1,8 @@
 <?php
 
-class S3 {
+namespace S3;
+
+class Client {
 
     const DEFAULT_ENDPOINT = 's3.amazonaws.com';
 

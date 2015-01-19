@@ -1,6 +1,8 @@
 <?php
 
-class S3Response {
+namespace S3;
+
+class Response {
 
     public $error;
     public $code;
