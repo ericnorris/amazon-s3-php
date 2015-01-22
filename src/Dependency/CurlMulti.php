@@ -37,4 +37,5 @@ class CurlMulti {
     public function removeHandle($ch) {
         return curl_multi_remove_handle($this->multi_handle, $ch);
     }
+
 }

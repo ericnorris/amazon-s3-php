@@ -41,4 +41,5 @@ class Curl {
     public function getinfo($opt = null) {
         return curl_getinfo($this->curl_handle, $opt);
     }
+
 }

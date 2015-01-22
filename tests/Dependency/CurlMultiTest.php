@@ -8,6 +8,7 @@ class CurlMultiTest extends \PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->mh = new CurlMulti();
+        $this->mh->init();
     }
 
     public function tearDown() {
@@ -16,10 +17,7 @@ class CurlMultiTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
-
     public function test_init() {
-        $this->mh->init();
-
         $this->assertTrue(is_resource($this->mh->getHandle()));
     }
 
@@ -70,18 +68,18 @@ class CurlMultiTest extends \PHPUnit_Framework_TestCase {
 
 // === Stubbing global functions ===
 function curl_multi_add_handle($mh, $handle) {
-    return $handle;
+    return is_resource($mh) ? $handle : 0;
 }
 
 function curl_multi_exec($mh, &$still_running) {
     $still_running = CurlMultiTest::SENTINEL;
-    return CurlMultiTest::SENTINEL;
+    return is_resource($mh) ? CurlMultiTest::SENTINEL : 0;
 }
 
 function curl_multi_select($mh) {
-    return CurlMultiTest::SENTINEL;
+    return is_resource($mh) ? CurlMultiTest::SENTINEL : 0;
 }
 
 function curl_multi_remove_handle($mh, $handle) {
-    return $handle;
+    return is_resource($mh) ? $handle : 0;
 }
