@@ -1,6 +1,6 @@
 <?php
 
-namespace S3\Dependency;
+namespace S3\Dependencies;
 
 class CurlMulti {
 
