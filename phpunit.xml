@@ -17,10 +17,18 @@
         </testsuite>
     </testsuites>
 
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true"
+                   processUncoveredFilesFromWhitelist="true">
+
+            <directory suffix=".php">src/</directory>
+        </whitelist>
+    </filter>
+
     <logging>
         <log type="coverage-text"
              target="php://stdout"
-             showUncoveredFiles="false"/>
+             showUncoveredFiles="true"/>
     </logging>
 
 </phpunit>
