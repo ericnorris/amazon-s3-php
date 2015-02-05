@@ -26,7 +26,7 @@ class Curl {
         return curl_setopt($this->curl_handle, $option, $value);
     }
 
-    public function setoptArray($options) {
+    public function setoptArray(array $options) {
         return curl_setopt_array($this->curl_handle, $options);
     }
 
