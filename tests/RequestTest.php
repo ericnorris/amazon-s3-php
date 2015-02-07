@@ -70,6 +70,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($header_string, $this->request->getHeaderString());
     }
 
+    public function test_getURL() {
+        $url = 'https://' . self::TEST_ENDPOINT . '/' .
+            ltrim(self::TEST_PATH, '/');
+
+        $this->assertSame($url, $this->request->getURL());
+    }
+
 }
 
 // === Stubbing global functions ===

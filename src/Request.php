@@ -68,4 +68,8 @@ class Request {
         ));
     }
 
+    public function getURL() {
+        return "https://{$this->endpoint}/" . ltrim($this->path, '/');
+    }
+
 }
