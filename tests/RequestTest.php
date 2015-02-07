@@ -5,14 +5,14 @@ namespace S3;
 class RequestTest extends \PHPUnit_Framework_TestCase {
 
     const TEST_METHOD   = 'GET';
-    const TEST_URI      = '/test.txt';
+    const TEST_PATH     = '/test.txt';
     const TEST_ENDPOINT = 's3.amazonaws.com';
 
     public function setUp() {
         $this->request = new Request(
             self::TEST_METHOD,
-            self::TEST_URI,
-            self::TEST_ENDPOINT
+            self::TEST_ENDPOINT,
+            self::TEST_PATH
         );
     }
 
@@ -27,8 +27,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame(self::TEST_METHOD, $this->request->getMethod());
     }
 
-    public function test_getUri() {
-        $this->assertSame(self::TEST_URI, $this->request->getUri());
+    public function test_getPath() {
+        $this->assertSame(self::TEST_PATH, $this->request->getPath());
     }
 
     public function test_getEndpoint() {

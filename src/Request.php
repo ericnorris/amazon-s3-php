@@ -7,22 +7,22 @@ class Request {
     const AWS_DATE_FORMAT = 'D, d M Y H:i:s T';
 
     private $method;
-    private $uri;
+    private $path;
     private $endpoint;
 
     private $headers;
     private $file;
 
-    public function __construct($method, $uri, $endpoint) {
+    public function __construct($method, $endpoint, $path) {
         $this->method   = $method;
-        $this->uri      = $uri;
         $this->endpoint = $endpoint;
+        $this->path     = $path;
 
         $this->headers = array(
-            'Content-MD5' => '',
+            'Content-MD5'  => '',
             'Content-Type' => '',
-            'Date' => gmdate(self::AWS_DATE_FORMAT),
-            'Host' => $endpoint
+            'Date'         => gmdate(self::AWS_DATE_FORMAT),
+            'Host'         => $endpoint
         );
 
         $this->file = null;
@@ -42,8 +42,8 @@ class Request {
         return $this->method;
     }
 
-    public function getUri() {
-        return $this->uri;
+    public function getPath() {
+        return $this->path;
     }
 
     public function getEndpoint() {
