@@ -58,4 +58,14 @@ class Request {
         return $this->file;
     }
 
+    public function getHeaderString() {
+        return implode("\n", array_map(
+            function($header, $value) {
+                return "$header: $value";
+            },
+            array_keys($this->headers),
+            array_values($this->headers)
+        ));
+    }
+
 }

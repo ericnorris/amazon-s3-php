@@ -52,6 +52,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($file, $this->request->getFile());
     }
 
+    public function test_getHeaderString() {
+        $headers = array(
+            'Content-MD5' => 'test-md5',
+            'Content-Type' => 'test-type',
+            'Date' => 'test-date',
+            'Host' => 'test-endpoint'
+        );
+
+        $header_string = "Content-MD5: test-md5\n" .
+                         "Content-Type: test-type\n" .
+                         "Date: test-date\n" .
+                         "Host: test-endpoint";
+
+        $this->request->includeHeaders($headers);
+
+        $this->assertSame($header_string, $this->request->getHeaderString());
+    }
+
 }
 
 // === Stubbing global functions ===
