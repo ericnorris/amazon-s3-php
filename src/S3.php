@@ -23,7 +23,8 @@ class S3 {
         $this->curl_opts = array(
             CURLOPT_CONNECTTIMEOUT => 30,
             CURLOPT_LOW_SPEED_LIMIT => 1,
-            CURLOPT_LOW_SPEED_TIME => 30
+            CURLOPT_LOW_SPEED_TIME => 30,
+            CURLOPT_SSLVERSION => 6,  // Force requsts to use TLS 1.2
         );
     }
 
